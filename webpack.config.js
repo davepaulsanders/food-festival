@@ -38,6 +38,13 @@ module.exports = {
       },
     ],
   },
+  devServer: {
+    // I had to add this in to get it to use the right directory
+    static: {
+      directory: path.join(__dirname, "/"),
+    },
+    port: 8080,
+  },
   plugins: [
     new webpack.ProvidePlugin({
       $: "jquery",
