@@ -1,9 +1,9 @@
-const path = require("path");
 const webpack = require("webpack");
-const BundleAnalyzerPlugin =
-  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const WebpackPwaManifest = require("webpack-pwa-manifest");
+const path = require("path");
 
-module.exports = {
+const config = {
   entry: {
     app: "./assets/js/script.js",
     events: "./assets/js/events.js",
@@ -11,13 +11,13 @@ module.exports = {
     tickets: "./assets/js/tickets.js",
   },
   output: {
-    path: __dirname + "/dist",
+    publicPath: path.join(__dirname + "/dist"),
     filename: "[name].bundle.js",
   },
   module: {
     rules: [
       {
-        test: /\.jpg$/i,
+        test: /\.(png|jpe?g|gif)$/i,
         use: [
           {
             loader: "file-loader",
@@ -26,7 +26,7 @@ module.exports = {
               name(file) {
                 return "[path][name].[ext]";
               },
-              publicPath: function (url) {
+              publicPath(url) {
                 return url.replace("../", "/assets/");
               },
             },
@@ -38,21 +38,33 @@ module.exports = {
       },
     ],
   },
-  devServer: {
-    // I had to add this in to get it to use the right directory
-    static: {
-      directory: path.join(__dirname, "/"),
-    },
-    port: 8080,
-  },
   plugins: [
     new webpack.ProvidePlugin({
       $: "jquery",
       jQuery: "jquery",
     }),
     new BundleAnalyzerPlugin({
-      analyzerMode: "static", // the report outputs to an HTML file in the dist folder
+      analyzerMode: "static",
+    }),
+    new WebpackPwaManifest({
+      name: "Food Event",
+      short_name: "Foodies",
+      description: "An app that allows you to view upcoming food events.",
+      start_url: "../index.html",
+      background_color: "#01579b",
+      theme_color: "#ffffff",
+      fingerprints: false,
+      inject: false,
+      icons: [
+        {
+          src: path.resolve("assets/img/icons/icon-512x512.png"),
+          sizes: [96, 128, 192, 256, 384, 512],
+          destination: path.join("assets", "icons"),
+        },
+      ],
     }),
   ],
   mode: "development",
 };
+
+module.exports = config;
